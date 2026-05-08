@@ -16,40 +16,39 @@ Fans out to whichever agent skill dirs the workspace declares — `~/.claude/ski
 
 ## Bootstrap the CLI on a new machine
 
-The skill expects `crabbox whoami` to succeed. On a fresh box:
+Install the binary, set two envs, run one command:
 
 ```sh
-brew install openclaw/tap/crabbox            # CLI binary
+brew install openclaw/tap/crabbox
 
 export CRABBOX_BROKER_URL='https://crabbox-coordinator.<your-acct>.workers.dev'
 export CRABBOX_COORDINATOR_TOKEN='<shared-bearer-token>'
-export CRABBOX_ADMIN_TOKEN='<admin-token>'   # optional — enables `crabbox list`
 
-bash <(curl -fsSL https://raw.githubusercontent.com/Minoo7/crabbox-skill/main/bootstrap.sh)
+printf '%s' "$CRABBOX_COORDINATOR_TOKEN" | \
+  crabbox login --url "$CRABBOX_BROKER_URL" --provider hetzner --token-stdin
 ```
 
-`bootstrap.sh` runs `crabbox login --token-stdin` and (if provided) splices `adminToken` into the resulting `~/.config/crabbox/config.yaml`. Idempotent — re-run any time the token rotates.
+`crabbox login` writes `~/.config/crabbox/config.yaml`. Re-run any time the token rotates.
 
-For fish-shell users wanting persistent envs:
+For admin commands (`crabbox list` etc.), splice an admin token into that file:
 
-```fish
-set -Ux CRABBOX_BROKER_URL "https://crabbox-coordinator.<your-acct>.workers.dev"
-set -Ux CRABBOX_COORDINATOR_TOKEN "<shared-bearer-token>"
-set -Ux CRABBOX_ADMIN_TOKEN "<admin-token>"
+```sh
+config="${XDG_CONFIG_HOME:-$HOME/.config}/crabbox/config.yaml"
+tmp=$(mktemp)
+sed "/^    token:/a\\    adminToken: $CRABBOX_ADMIN_TOKEN" "$config" > "$tmp"
+mv "$tmp" "$config"
 ```
-
-Or stash them in `sops`-encrypted env files and source on shell start.
 
 ## Direct-provider alternative (no broker)
 
-If you don't have a broker, set provider creds directly and skip bootstrap:
+If you don't have a broker, set provider creds directly:
 
 ```sh
 export HCLOUD_TOKEN='<hetzner-api-token>'    # or AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY
 crabbox warmup --provider hetzner --idle-timeout 30m
 ```
 
-You lose coordinator-side run history (`crabbox events` / `attach` / `logs` / `results`) but lease/run/stop all work.
+You lose coordinator-side run history (`crabbox events` / `attach` / `logs` / `results`) but lease/run/stop work.
 
 ## License
 

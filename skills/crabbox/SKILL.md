@@ -28,9 +28,20 @@ remote work.** Exit codes:
 
 **Trust whatever preflight reports.** Do not run `crabbox login`, do not
 pass `--url`, and do not modify CLI config unless the user explicitly
-asks to switch brokers. Any openclaw.ai URLs in the examples below are
-illustrative — the CLI on this machine is already pointed at the right
-broker.
+asks. If they ask to set up auth (preflight exit 4), the canonical
+one-liner expects `CRABBOX_BROKER_URL` + `CRABBOX_COORDINATOR_TOKEN` in env:
+
+```sh
+printf '%s' "$CRABBOX_COORDINATOR_TOKEN" | \
+  crabbox login --url "$CRABBOX_BROKER_URL" --provider hetzner --token-stdin
+```
+
+(Pass `--provider aws` if appropriate. For admin operations like `crabbox
+list`, also splice `adminToken: <admin>` under `broker:` in
+`~/.config/crabbox/config.yaml`.)
+
+Any openclaw.ai URLs in the examples below are illustrative — the CLI on
+this machine is already pointed at the right broker.
 
 ---
 
