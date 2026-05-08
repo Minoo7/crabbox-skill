@@ -1,5 +1,5 @@
 name: "@minoo/crabbox"
-version: 0.4.2
+version: 0.4.3
 description: Crabbox remote-Linux testbox skill for any AI coding agent. Fail-fast preflight (single 'crabbox whoami') before remote work; broker URL/auth/provider stay in the local crabbox CLI's config — works against the public openclaw.ai broker, a self-hosted Cloudflare Worker, or direct-provider mode.
 keywords: [crabbox, testbox, openclaw, hetzner, aws, agent-skill, remote-linux, preflight]
 license: MIT
